@@ -179,7 +179,7 @@ function highlightLinkAndAddTooltip(anchorElement, isClickbait, explanation) {
 }
 
 
-async function getLinkTextClickbaitVerdict(anchorElement) {
+async function getLinkTextClickbaitVerdict(anchorElement, ignoreMinLinkSize) {
   if (anchorElement.hasChildNodes()) { // the father
     if (!anchorElement.childNodes[0].hasChildNodes() && anchorElement.childNodes[0].textContent.trim() != '') { // the child without childs.
 
@@ -187,7 +187,7 @@ async function getLinkTextClickbaitVerdict(anchorElement) {
       // Get the text content, trim leading/trailing spaces, and split by whitespace
       const words = textLink.split(/\s+/);
 
-      if (words.length >= MIN_WORDS_IN_LINKS) {
+      if (ignoreMinLinkSize == true || words.length >= MIN_WORDS_IN_LINKS) {
 
         if (!session) session = await ai.languageModel.create();
 
@@ -220,7 +220,7 @@ async function getLinkTextClickbaitVerdict(anchorElement) {
       }
     }
 
-    return getLinkTextClickbaitVerdict(anchorElement.childNodes[0]); // get only 1st child. Recursive.
+    return getLinkTextClickbaitVerdict(anchorElement.childNodes[0], ignoreMinLinkSize); // get only 1st child. Recursive.
   } else {
     // console.log('DEBTITULAR: ' + anchorElement.textContent.trim());
     return anchorElement.textContent.trim();
@@ -239,7 +239,7 @@ async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
   for (let one of nodesHTML) {
     if (i == MAX_NUM_LINKS) break;
 
-    let textContent = await getLinkTextClickbaitVerdict(one);
+    let textContent = await getLinkTextClickbaitVerdict(one, false);
     if (textContent != null && textContent != '') {
       i++;
 
@@ -293,7 +293,7 @@ chrome.runtime.onMessage.addListener(
       let elemAnchors = findAnchorByLink(request.linkUrl);
 
       for (one of elemAnchors) {
-        await getLinkTextClickbaitVerdict(one);
+        await getLinkTextClickbaitVerdict(one, true);
       }
     }
   }
