@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8' />
+  <script src="./jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div style="margin: 10px 20px 0px 20px;">
+    <h1><img id="logo" src="./images/icon-128.png"
+        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;" />Clickbait Fixer - Chrome extension</h1>
+
+    <p>It detects and fixes clickbait links with AI locally!</p>  
+    <div class="nes-container with-title" style="margin-top: 20px;">
+      <p class="title">Configuration</p>
+      <label for="txtMaxNumLinks">Max number of links to analyze on each page:</label>
+      <div style="display: flex;">
+        <div class="nes-field" style="width: 80%;">
+          <input type="text" id="txtMaxNumLinks" class="nes-input" style="width: 100%;">
+        </div>
+        <button id="btnSave" type="button" class="nes-btn is-primary">Save number</button>
+      </div>
+      <p id="lblNote" style="margin-top: 20px;"></p>
+    </div>
+
+    <p id="footer" style="margin-top: 30px;">
+      Made with <i class="nes-icon is-small heart"></i> by <a href="https://javiercampos.es"
+        target="_blank">javiercampos.es</a>
+      using <a href="https://googlechromeai.devpost.com/" target="_blank">Chrome Built-in AI APIs</a>.<br />
+    </p>
+
+  </div>
+  <dialog class="nes-dialog" id="genericDialog">
+    <form method="dialog" target="_blank">
+      <p id="lblGenericDialog" class="title"></p>
+      <menu class="dialog-menu">
+        <button class="nes-btn is-primary">OK</button>
+      </menu>
+    </form>
+  </dialog>
+
+</body>
+<script src="options.js"></script>
+
+</html>

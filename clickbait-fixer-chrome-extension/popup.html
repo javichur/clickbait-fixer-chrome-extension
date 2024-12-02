@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8' />
+  <script src="./jquery.min.js"></script>
+  <script type="text/javascript" src="./gauge.min.js"></script>
+  <script type="text/javascript" src="./chart.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    .fas:hover {
+      color: black;
+    }
+  </style>
+</head>
+
+<body style="width: 300px;">
+  <div id="btnSettings" style="position: absolute; top: 10px; right: 13px; color: grey;">
+    <i class="fas fa-cog"></i>
+  </div>
+  <div style="margin: 20px;">
+    <span style="width: 100%; text-align: center;">Clickbait Fixer</span>
+
+    <canvas id="gauge_canvas" style="display: none; margin-left: -20px;"></canvas>
+    <span id="gauge-value" style="text-align: center; width: 100%; display:block;"></span>
+
+    <button id="btnScanLinks" class="nes-btn" style="margin-top: 20px; width: 97%;">Scan links</button>
+
+    <p style="margin-top: 10px;" id="lblStatus"></p>
+
+    <script src="popup.js"></script>
+  </div>
+</body>
+
+</html>
