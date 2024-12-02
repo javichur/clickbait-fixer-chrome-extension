@@ -7,12 +7,6 @@ let lblStatus = document.getElementById("lblStatus");
 var gauge_canvas = document.getElementById('gauge_canvas');
 var gauge_value = document.getElementById('gauge-value');
 
-let CURRENT_ENTITIES = null; // for anonymizer
-chrome.storage.sync.get("CURRENT_ENTITIES", (data) => {
-  CURRENT_ENTITIES = data.CURRENT_ENTITIES;
-  console.log('Entities loaded: ' + JSON.stringify(CURRENT_ENTITIES));
-});
-
 var optsChart = {
   angle: -0.2, // The span of the gauge arc
   lineWidth: 0.2, // The line thickness
@@ -87,7 +81,7 @@ function drawScoreChart(value) {
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     // sendResponse({ farewell: "sendResponse onMessageonMessage" });
-    console.log('onMessageonMessage');
+    console.log('onMessageonMessage in popup');
 
     console.log(sender.tab ?
       "from a content script:" + sender.tab.url :

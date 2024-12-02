@@ -55,7 +55,7 @@ async function downloadAndSummarize(link) {
     try {
       //let modelResult = await session.prompt(generate_non_clickbait_headline_prompt.replace('{}', cleanContent));
       if (!summarizer) {
-        summarizer = await ai.summarizer.create({ 
+        summarizer = await ai.summarizer.create({
           type: "headline", // "tl;dr"
           length: "short",
           format: "plain-text",
@@ -63,7 +63,8 @@ async function downloadAndSummarize(link) {
             m.addEventListener('downloadprogress', (e) => {
               console.log(`Downloading summarizer model. Downloaded ${e.loaded} of ${e.total} bytes.`);
             });
-          } }); 
+          }
+        });
       }
       let modelResult = await summarizer.summarize(cleanContent);
 
@@ -138,9 +139,9 @@ function addTooltip(node, isClickbait, tooltipText) {
 
 function replaceLastSingleQuote(input) {
   const lastIndex = input.lastIndexOf("'"); // Find the last occurrence of '
-  
+
   if (lastIndex === -1) return input; // If no single quote is found, return the original string
-  
+
   // Replace the last occurrence of ' with "
   return input.substring(0, lastIndex) + '"' + input.substring(lastIndex + 1);
 }
@@ -270,3 +271,30 @@ function getCleanTextFromWeb(elem) {
   allText = allText.substring(0, 3500); // limit 3500 chars to accomodate the SummarizationAPI max input.
   return allText;
 }
+
+
+function findAnchorByLink(link) {
+  const anchors = document.querySelectorAll('a');
+
+  return Array.from(anchors).filter(anchor => anchor.href === link);
+}
+
+
+chrome.runtime.onMessage.addListener(  
+  async function (request, sender, sendResponse) {
+    // sendResponse({ farewell: "sendResponse onMessageonMessage" });
+    console.log('onMessageonMessage in globals');
+
+    console.log(sender.tab ?
+      "from a content script:" + sender.tab.url :
+      "from the extension");
+
+    if (request.type == 'contextMenuCheckClickbaitLink') {
+      let elemAnchors = findAnchorByLink(request.linkUrl);
+
+      for (one of elemAnchors) {
+        await getLinkTextClickbaitVerdict(one);
+      }
+    }
+  }
+);
