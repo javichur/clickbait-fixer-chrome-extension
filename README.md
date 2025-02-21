@@ -2,7 +2,7 @@
 
 The Chrome Extension that detects and fixes clickbait links in any website with AI locally!
 
-![logo](clickbait-fixer-chrome-extension/images/icon-128.png)
+![logo](clickbait-fixer-chrome-extension/public/icons/icon-128.png)
 
 ## 💡 Inspiration
 

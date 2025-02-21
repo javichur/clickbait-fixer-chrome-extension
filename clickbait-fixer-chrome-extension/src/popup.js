@@ -108,19 +108,23 @@ btnScanLinks.addEventListener("click", async () => {
 
   lblStatus.innerHTML = '';
 
+  /*
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: reviewAllLinks,
+    func: reviewAllLinks,
   });
+  */
+
+  await reviewAllLinks();
 });
 
 
 async function reviewAllLinks() {
-  chrome.storage.sync.get("MAX_NUM_LINKS", async ({ MAX_NUM_LINKS }) => {
-    console.log('start reviewAllLinks()');
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    await getCleanLinksFromWeb(MAX_NUM_LINKS);
+  chrome.tabs.sendMessage(tab.id, { type: 'reviewAllLinks' }, function (response) {
+    console.log('Message sent: reviewAllLinks');
   });
 }

@@ -280,7 +280,7 @@ function findAnchorByLink(link) {
 }
 
 
-chrome.runtime.onMessage.addListener(  
+chrome.runtime.onMessage.addListener(
   async function (request, sender, sendResponse) {
     // sendResponse({ farewell: "sendResponse onMessageonMessage" });
     console.log('onMessageonMessage in globals');
@@ -295,6 +295,10 @@ chrome.runtime.onMessage.addListener(
       for (one of elemAnchors) {
         await getLinkTextClickbaitVerdict(one, true);
       }
+    } else if (request.type == 'reviewAllLinks') {
+      chrome.storage.sync.get("MAX_NUM_LINKS", async ({ MAX_NUM_LINKS }) => {
+        await getCleanLinksFromWeb(MAX_NUM_LINKS);
+      });
     }
   }
 );
