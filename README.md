@@ -9,6 +9,7 @@ The Chrome Extension that detects and fixes clickbait links in any website with 
 Clickbait is everywhere online these days. It's those over-the-top or misleading headlines that make you want to click, but the content rarely lives up to the hype. Sure, it can get tons of views, but it’s super frustrating because it wastes your time and sometimes spreads misinformation. Plus, it makes people trust online content less and less. It's something we need to call out and avoid if we want the internet to be a better, more honest space.
 
 Could a Large Language Model (LLM) detect from a headline whether it is clickbait or not? And if it can do so, could it be run locally to 1) have minimal latency that does not affect our speed while reading news; 2) not involve additional costs for the user; 3) not impact privacy?
+
 ## ✨ What it does
 
 "Clickbait Fixer" is a Chrome Extension that detects and fixes clickbait links in any website with AI locally! You can choose between a specific link (right click on it to detect clickbait and fix it); or analyze an entire website in 1 click to get the "Clickbait score" of that website. Built with Chrome Built-in AI: Prompt API and Summarization API.
@@ -35,13 +36,22 @@ Last but not least, the Chrome Extension has a ContextMenu to analyze any specif
 
 This Chrome Extension uses messages for communicating between components: sending messages from Content to Popup; and messages from Background to Content.
 
-### Prerequisites
+### ⚙️ Prerequisites and chrome extension instalation
 
 This project uses experimental Chrome APIs to leverage **AI locally**. You have to enable these features in your Chrome browser before using this Chrome extension:
 
 1. Open a new tab in Chrome, go to `chrome://flags/#optimization-guide-on-device-model`. Select there `Enabled BypassPerfRequirement`.
 2. For **Prompt API** `chrome://flags/#prompt-api-for-gemini-nano` (Prompt API is available, behind an experimental flag, from Chrome 127+ on **desktop** platforms). Select there `Enabled`.
-3. For **Summarization API**  `chrome://flags/#summarization-api-for-gemini-nano` (Summarization API is available behind an experimental flag, from Chrome 129+ on **desktop** platforms).
+3. For **Summarization API**  `chrome://flags/#summarization-api-for-gemini-nano` (Summarization API is available behind an experimental flag, from Chrome 129+ on **desktop** platforms). Select there `Enabled`.
+4. To build this chrome extension, follow these steps (because now it uses [Chrome Extension CLI](https://github.com/dutiyesh/chrome-extension-cli)):
+
+4.1. (in you didn't install chrome-extension-cli yet use this command line) `npm install -g chrome-extension-cli`
+
+4.2. `cd clickbait-fixer-chrome-extension/clickbait-fixer-chrome-extension`
+
+4.3. `npm run watch`
+
+4.4. And then open this in Chrome: `chrome://extensions/`, check the `developer mode` and use the button called `load unpacked` to select the folder `clickbait-fixer-chrome-extension/build`.
 
 ## 🤯 Challenges we ran into
 
@@ -60,6 +70,7 @@ I'm very proud of the purpose and UX of this Chrome extension. It's solving a re
 The user can do a full scan of a page to get the score of the page and know if it's a media that promotes clickbait or not. But users can also navigate without scanning a page and simply use the right click to analyze specific links. This solution is very non-intrusive and very easy to learn.
 
 ## 🧑‍🎓 What we learned
+
 I learned a lot about:
 * Built-in AI in Chrome (specifically about the APIs I used and the others; how to manage errors and how to download the model if they are not downloaded), 
 * Chrome Extensions (ie: sending messages from Content to Popup; and messages from Background to Content; Context Menu; etc).
