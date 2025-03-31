@@ -15,13 +15,9 @@ let count_links_analyzed = 0;
 
 
 chrome.contextMenus.onClicked.addListener(async (item, tab) => {
-  console.log('contextMenus clicked: item' + JSON.stringify(item));
-
   if (item.menuItemId == 'contextMenuCheckClickbaitLink') {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    chrome.tabs.sendMessage(tab.id, { type: item.menuItemId, linkUrl: item.linkUrl }, function (response) {
-      console.log('Message sent: contextMenuCheckClickbaitLink');
-    });
+    chrome.tabs.sendMessage(tab.id, { type: item.menuItemId, linkUrl: item.linkUrl }, function (response) {});
   }
 });

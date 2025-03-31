@@ -44,6 +44,7 @@ window.onload = async function () {
   }
 }
 
+
 async function downloadTheModel() {
   const session = await ai.languageModel.create({
     monitor(m) {
@@ -80,12 +81,6 @@ function drawScoreChart(value) {
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    // sendResponse({ farewell: "sendResponse onMessageonMessage" });
-    console.log('onMessageonMessage in popup');
-
-    console.log(sender.tab ?
-      "from a content script:" + sender.tab.url :
-      "from the extension");
 
     if (request.count_links_analyzed) {
       let value = 100 - (request.count_links_clickbait * 100 / (1 + request.count_links_clickbait + request.count_links_not_clickbait));
@@ -95,7 +90,6 @@ chrome.runtime.onMessage.addListener(
         btnScanLinks.innerHTML = `Scanning...<br/>${request.count_links_analyzed} links analyzed.`;
       else
         btnScanLinks.innerHTML = `Scan completed.<br/>${request.count_links_analyzed} links analyzed.`;
-      // console.log(request);
     }
   }
 );
@@ -108,23 +102,11 @@ btnScanLinks.addEventListener("click", async () => {
 
   lblStatus.innerHTML = '';
 
-  /*
-  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: reviewAllLinks,
-  });
-  */
-
   await reviewAllLinks();
 });
 
 
 async function reviewAllLinks() {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  chrome.tabs.sendMessage(tab.id, { type: 'reviewAllLinks' }, function (response) {
-    console.log('Message sent: reviewAllLinks');
-  });
+  chrome.tabs.sendMessage(tab.id, { type: 'reviewAllLinks' }, function (response) {});
 }

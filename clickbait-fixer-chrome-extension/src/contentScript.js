@@ -1,3 +1,5 @@
+import { Readability } from '@mozilla/readability';
+
 let MIN_WORDS_IN_LINKS = 4;
 let clickbait_prompt = `You are an expert clickbait link detector. Is the following link clickbait?
 
@@ -28,6 +30,8 @@ let count_links_not_clickbait = 0;
 
 let tooltip = null;
 
+const parser = new DOMParser();
+
 async function downloadAndSummarize(link) {
   let ret = null;
 
@@ -36,11 +40,11 @@ async function downloadAndSummarize(link) {
     url: link,
     type: 'GET',
     success: function (result) {
-      console.log('OK downloadAndSummarize: ' + JSON.stringify(result));
+      console.log('OK downloaded. Raw: ' + JSON.stringify(result));
       ret = result;
     },
     error: function (error) {
-      console.log('error downloadAndSummarize: ' + JSON.stringify(error));
+      console.log('error downloading: ' + JSON.stringify(error));
     }
   });
 
@@ -49,7 +53,11 @@ async function downloadAndSummarize(link) {
     tempDiv.innerHTML = ret;
 
     let cleanContent = getCleanTextFromWeb(tempDiv);
-    console.log('cleanContent: ' + cleanContent);
+    console.log('------- cleanContent: ' + cleanContent);
+
+    const tempDom = parser.parseFromString(ret, "text/html");
+    let readable = new Readability(tempDom).parse().textContent;
+    console.log('------- readable: ' + readable);
 
     let lblSummaryInTooltip = null;
     try {
@@ -67,12 +75,16 @@ async function downloadAndSummarize(link) {
         });
       }
       let modelResult = await summarizer.summarize(cleanContent);
-
       console.log('modelResult non-clickbait: ' + modelResult);
 
+      let modelResultReadable = await summarizer.summarize(readable);
+      console.log('modelResultReadable non-clickbait: ' + modelResultReadable);      
+
       lblSummaryInTooltip = document.getElementById("lblSummaryInTooltip");
-      if (lblSummaryInTooltip)
-        lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResult;
+      if (lblSummaryInTooltip) {
+        lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResult + '</br></br>';
+        lblSummaryInTooltip.innerHTML += '🤖 (with Readable before summarizing) Non-clickbait headline proposed by AI:<br/>' + modelResultReadable;
+      }
 
     } catch (e) {
       console.log('error in summarize API: ' + e);
@@ -194,11 +206,8 @@ async function getLinkTextClickbaitVerdict(anchorElement, ignoreMinLinkSize) {
         let result = null;
         try {
           result = await session.prompt(clickbait_prompt.replace('{}', textLink));
-          console.log('MODEL INPUT LINK: ' + textLink);
-          console.log('MODELRESULT: ' + result);
 
           result = sanitizeModelResult(result);
-          // console.log('MODELRESULTTRANSLATED A: ' + result);
 
           let resultJson = JSON.parse(result);
 
@@ -222,14 +231,12 @@ async function getLinkTextClickbaitVerdict(anchorElement, ignoreMinLinkSize) {
 
     return getLinkTextClickbaitVerdict(anchorElement.childNodes[0], ignoreMinLinkSize); // get only 1st child. Recursive.
   } else {
-    // console.log('DEBTITULAR: ' + anchorElement.textContent.trim());
     return anchorElement.textContent.trim();
   }
 }
 
 
 async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
-
   count_links_analyzed = 0;
   count_links_clickbait = 0;
   count_links_not_clickbait = 0;
@@ -243,11 +250,7 @@ async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
     if (textContent != null && textContent != '') {
       i++;
 
-      chrome.runtime.sendMessage({ count_links_analyzed, count_links_clickbait, count_links_not_clickbait }, function (response) {
-        // console.log('Message sent: ' + count_links_analyzed);
-      });
-    } else {
-      // console.log('DEBEMPTY');
+      chrome.runtime.sendMessage({ count_links_analyzed, count_links_clickbait, count_links_not_clickbait }, function (response) {});
     }
     count_links_analyzed++;
   }
@@ -276,23 +279,20 @@ function getCleanTextFromWeb(elem) {
 function findAnchorByLink(link) {
   const anchors = document.querySelectorAll('a');
 
-  return Array.from(anchors).filter(anchor => anchor.href === link);
+  const filt = Array.from(anchors).filter(anchor => anchor.href === link);
+  console.log('findAnchorByLink len: ' + filt.length);
+
+  return filt;
 }
 
 
 chrome.runtime.onMessage.addListener(
   async function (request, sender, sendResponse) {
-    // sendResponse({ farewell: "sendResponse onMessageonMessage" });
-    console.log('onMessageonMessage in globals');
-
-    console.log(sender.tab ?
-      "from a content script:" + sender.tab.url :
-      "from the extension");
 
     if (request.type == 'contextMenuCheckClickbaitLink') {
       let elemAnchors = findAnchorByLink(request.linkUrl);
 
-      for (one of elemAnchors) {
+      for (const one of elemAnchors) {
         await getLinkTextClickbaitVerdict(one, true);
       }
     } else if (request.type == 'reviewAllLinks') {
