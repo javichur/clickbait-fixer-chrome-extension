@@ -20,7 +20,8 @@ Reply only with the headline.
 
 The content is: {}`;
 
-let template_for_custom_prompts = `Answer the following instruction using the following context:
+let template_for_custom_prompts = `Answer the following instruction using the following context. Respond directly in plain text, don't use JSON.
+
 Instruction: {instruction}
 
 Context: {context}`;
@@ -103,6 +104,16 @@ async function downloadAndSummarize(link) {
       if (lblSummaryInTooltip) {
         lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResultReadable;
       }
+
+      // // title with 5 W's.
+      // const prompt = template_for_custom_prompts.replace('{instruction}', "Give me the 5 W's of journalism in a single news headline, avoiding clickbait.").replace('{context}', readable);
+      // if (!session) session = await ai.languageModel.create();
+      // let modelResult = await session.prompt(prompt);
+
+      // if (modelResult) {
+      //    lblSummaryInTooltip.innerHTML += `</br></br>🤖 <strong>${modelResult}</strong>`;
+      // }
+
     } catch (e) {
       console.log('error in summarize API: ' + e);
 
