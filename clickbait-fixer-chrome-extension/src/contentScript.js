@@ -49,14 +49,9 @@ async function downloadAndSummarize(link) {
   });
 
   if (ret) {
-    let tempDiv = document.createElement('div');
-    tempDiv.innerHTML = ret;
-
-    let cleanContent = getCleanTextFromWeb(tempDiv);
-    console.log('------- cleanContent: ' + cleanContent);
-
     const tempDom = parser.parseFromString(ret, "text/html");
     let readable = new Readability(tempDom).parse().textContent;
+    readable = readable.substring(0, 3500); // limit 3500 chars to accomodate the SummarizationAPI max input.
     console.log('------- readable: ' + readable);
 
     let lblSummaryInTooltip = null;
@@ -74,16 +69,13 @@ async function downloadAndSummarize(link) {
           }
         });
       }
-      let modelResult = await summarizer.summarize(cleanContent);
-      console.log('modelResult non-clickbait: ' + modelResult);
 
       let modelResultReadable = await summarizer.summarize(readable);
       console.log('modelResultReadable non-clickbait: ' + modelResultReadable);      
 
       lblSummaryInTooltip = document.getElementById("lblSummaryInTooltip");
       if (lblSummaryInTooltip) {
-        lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResult + '</br></br>';
-        lblSummaryInTooltip.innerHTML += '🤖 (with Readable before summarizing) Non-clickbait headline proposed by AI:<br/>' + modelResultReadable;
+        lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResultReadable;
       }
 
     } catch (e) {
@@ -257,22 +249,6 @@ async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
   chrome.runtime.sendMessage({ scan_completed: true, count_links_analyzed, count_links_clickbait, count_links_not_clickbait }, function (response) {
     console.log('Message sent. Num of links analyzed: ' + count_links_analyzed);
   });
-}
-
-
-function getCleanTextFromWeb(elem) {
-  const nodesHTML = elem.querySelectorAll('h1, h2, h3, p'); //, td, caption, a, figcaption'); // , span, div, i, b');
-  let nodesText = []; // version texto
-  let allText = '';
-  for (let one of nodesHTML) {
-    nodesText.push(one.textContent);
-    if (one.textContent.length > 0 && allText.includes(one.textContent) == false && one.textContent.includes('font-style') == false) {
-      allText += one.textContent + '. ';
-    }
-  }
-
-  allText = allText.substring(0, 3500); // limit 3500 chars to accomodate the SummarizationAPI max input.
-  return allText;
 }
 
 
