@@ -1,6 +1,9 @@
 let btnSave = document.getElementById("btnSave");
 btnSave.addEventListener('click', saveConfig);
 
+let btnSaveCustomContextMenu1 = document.getElementById("btnSaveCustomContextMenu1");
+btnSaveCustomContextMenu1.addEventListener('click', saveCustomeContextMenu);
+
 
 function showDialog(txt) {
   let lbl = document.getElementById('lblGenericDialog');
@@ -20,8 +23,28 @@ function saveConfig(event) {
   }
 }
 
+
+function saveCustomeContextMenu(event) {
+  let txtPrompt = document.getElementById("txtCustomContextMenu1");
+  chrome.storage.sync.set({ CUSTOM_PROMPT_1: txtPrompt.value }, () => {
+    let title = '(your custom prompt here)';
+    if (txtPrompt.value.length > 0) {
+      title = txtPrompt.value.substring(0, 64);
+    }
+
+    chrome.runtime.sendMessage({ type: 'createContextMenus', title });
+
+    showDialog('Custom prompt for Context Menu saved. Now you can explore this feature extension.');
+  });
+}
+
+
 document.getElementById('lblNote').innerHTML = `Note: Links with less than 4 words will not be scanned nor counted.`;
 
 chrome.storage.sync.get("MAX_NUM_LINKS", ({ MAX_NUM_LINKS }) => {
   document.getElementById("txtMaxNumLinks").value = MAX_NUM_LINKS;
+});
+
+chrome.storage.sync.get("CUSTOM_PROMPT_1", ({ CUSTOM_PROMPT_1 }) => {
+  document.getElementById("txtCustomContextMenu1").value = CUSTOM_PROMPT_1;
 });

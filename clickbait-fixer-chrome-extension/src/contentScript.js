@@ -20,6 +20,11 @@ Reply only with the headline.
 
 The content is: {}`;
 
+let template_for_custom_prompts = `Answer the following instruction using the following context:
+Instruction: {instruction}
+
+Context: {context}`;
+
 let session = null;
 let summarizer = null;
 
@@ -32,7 +37,7 @@ let tooltip = null;
 
 const parser = new DOMParser();
 
-async function downloadAndSummarize(link) {
+function downloadSync(link) {
   let ret = null;
 
   $.ajax({
@@ -40,7 +45,7 @@ async function downloadAndSummarize(link) {
     url: link,
     type: 'GET',
     success: function (result) {
-      console.log('OK downloaded. Raw: ' + JSON.stringify(result));
+      // console.log('OK downloaded. Raw: ' + JSON.stringify(result));
       ret = result;
     },
     error: function (error) {
@@ -48,36 +53,56 @@ async function downloadAndSummarize(link) {
     }
   });
 
+  return ret;
+}
+
+
+function downloadSyncAndClean(link) {
+  let ret = downloadSync(link);
+
   if (ret) {
     const tempDom = parser.parseFromString(ret, "text/html");
     let readable = new Readability(tempDom).parse().textContent;
     readable = readable.substring(0, 3500); // limit 3500 chars to accomodate the SummarizationAPI max input.
-    console.log('------- readable: ' + readable);
+    // console.log('------- readable: ' + readable);
 
-    let lblSummaryInTooltip = null;
-    try {
-      //let modelResult = await session.prompt(generate_non_clickbait_headline_prompt.replace('{}', cleanContent));
-      if (!summarizer) {
-        summarizer = await ai.summarizer.create({
-          type: "headline", // "tl;dr"
-          length: "short",
-          format: "plain-text",
-          monitor(m) {
-            m.addEventListener('downloadprogress', (e) => {
-              console.log(`Downloading summarizer model. Downloaded ${e.loaded} of ${e.total} bytes.`);
-            });
-          }
+    return readable;
+  }
+  return null;
+}
+
+
+async function loadSummarizer() {
+  if (!summarizer) {
+    summarizer = await ai.summarizer.create({
+      type: "headline", // "tl;dr"
+      length: "short",
+      format: "plain-text",
+      monitor(m) {
+        m.addEventListener('downloadprogress', (e) => {
+          console.log(`Downloading summarizer model. Downloaded ${e.loaded} of ${e.total} bytes.`);
         });
       }
+    });
+  }
+}
 
-      let modelResultReadable = await summarizer.summarize(readable);
-      console.log('modelResultReadable non-clickbait: ' + modelResultReadable);      
+
+async function downloadAndSummarize(link) {
+  
+  let readable = downloadSyncAndClean(link);
+
+  if (readable) {
+    let lblSummaryInTooltip = null;
+    try {
+      await loadSummarizer();
+
+      let modelResultReadable = await summarizer.summarize(readable); 
 
       lblSummaryInTooltip = document.getElementById("lblSummaryInTooltip");
       if (lblSummaryInTooltip) {
         lblSummaryInTooltip.innerHTML = '🤖 Non-clickbait headline proposed by AI after reading the destination:<br/>' + modelResultReadable;
       }
-
     } catch (e) {
       console.log('error in summarize API: ' + e);
 
@@ -254,10 +279,7 @@ async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
 
 function findAnchorByLink(link) {
   const anchors = document.querySelectorAll('a');
-
   const filt = Array.from(anchors).filter(anchor => anchor.href === link);
-  console.log('findAnchorByLink len: ' + filt.length);
-
   return filt;
 }
 
@@ -274,6 +296,32 @@ chrome.runtime.onMessage.addListener(
     } else if (request.type == 'reviewAllLinks') {
       chrome.storage.sync.get("MAX_NUM_LINKS", async ({ MAX_NUM_LINKS }) => {
         await getCleanLinksFromWeb(MAX_NUM_LINKS);
+      });
+    } else if (request.type == 'contextMenuCustomPrompt1') {
+
+      chrome.storage.sync.get("CUSTOM_PROMPT_1", async ({ CUSTOM_PROMPT_1 }) => {
+        if (CUSTOM_PROMPT_1 == null || CUSTOM_PROMPT_1.length == 0) {
+          alert('Custom prompt not defined by you yet. Go to Settings first.');
+          return;
+        }
+
+        let readable = downloadSyncAndClean(request.linkUrl);
+        if (!readable) {
+          alert('Error downloading and cleaning the destination.');
+          return;
+        }
+
+        const prompt = template_for_custom_prompts.replace('{instruction}', CUSTOM_PROMPT_1).replace('{context}', readable);
+
+        try{
+          if (!session) session = await ai.languageModel.create();
+
+          let modelResult = await session.prompt(prompt);
+
+          alert(modelResult);
+        } catch(e) {
+          alert('Error answering your custom prompt :( . ' + JSON.stringify(e));
+        }
       });
     }
   }
