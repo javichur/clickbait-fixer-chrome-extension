@@ -16,6 +16,13 @@ function createContextMenus(customPromptTitle) {
     type: 'normal',
     contexts: ['link']
   });
+
+  chrome.contextMenus.create({
+    id: 'contextMenuAskAnything',
+    title: 'Ask anything!',
+    type: 'normal',
+    contexts: ['link']
+  });
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -37,7 +44,7 @@ let count_links_analyzed = 0;
 
 
 chrome.contextMenus.onClicked.addListener(async (item, tab) => {
-  if (item.menuItemId == 'contextMenuCheckClickbaitLink' || item.menuItemId == 'contextMenuCustomPrompt1') {
+  if (item.menuItemId == 'contextMenuCheckClickbaitLink' || item.menuItemId == 'contextMenuCustomPrompt1'  || item.menuItemId == 'contextMenuAskAnything') {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.tabs.sendMessage(tab.id, { type: item.menuItemId, linkUrl: item.linkUrl }, function (response) {});

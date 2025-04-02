@@ -90,7 +90,7 @@ async function loadSummarizer() {
 
 
 async function downloadAndSummarize(link) {
-  
+
   let readable = downloadSyncAndClean(link);
 
   if (readable) {
@@ -98,7 +98,7 @@ async function downloadAndSummarize(link) {
     try {
       await loadSummarizer();
 
-      let modelResultReadable = await summarizer.summarize(readable); 
+      let modelResultReadable = await summarizer.summarize(readable);
 
       lblSummaryInTooltip = document.getElementById("lblSummaryInTooltip");
       if (lblSummaryInTooltip) {
@@ -278,7 +278,7 @@ async function getCleanLinksFromWeb(MAX_NUM_LINKS) {
     if (textContent != null && textContent != '') {
       i++;
 
-      chrome.runtime.sendMessage({ count_links_analyzed, count_links_clickbait, count_links_not_clickbait }, function (response) {});
+      chrome.runtime.sendMessage({ count_links_analyzed, count_links_clickbait, count_links_not_clickbait }, function (response) { });
     }
     count_links_analyzed++;
   }
@@ -295,6 +295,27 @@ function findAnchorByLink(link) {
 }
 
 
+async function downloadSyncCleandAndPrompt(link, user_prompt) {
+  let readable = downloadSyncAndClean(link);
+  if (!readable) {
+    alert('Error downloading and cleaning the destination.');
+    return;
+  }
+
+  const promptImproved = template_for_custom_prompts.replace('{instruction}', user_prompt).replace('{context}', readable);
+
+  try {
+    if (!session) session = await ai.languageModel.create();
+
+    let modelResult = await session.prompt(promptImproved);
+
+    alert(modelResult);
+  } catch (e) {
+    alert('Error answering your prompt :( . ' + JSON.stringify(e));
+  }
+}
+
+
 chrome.runtime.onMessage.addListener(
   async function (request, sender, sendResponse) {
 
@@ -308,6 +329,12 @@ chrome.runtime.onMessage.addListener(
       chrome.storage.sync.get("MAX_NUM_LINKS", async ({ MAX_NUM_LINKS }) => {
         await getCleanLinksFromWeb(MAX_NUM_LINKS);
       });
+    }
+    else if (request.type == 'contextMenuAskAnything') {
+      let question = prompt("Ask anything and the AI will find the answer in the link destination.");
+      if (question != null && question != "") {
+        await downloadSyncCleandAndPrompt(request.linkUrl, question);
+      }
     } else if (request.type == 'contextMenuCustomPrompt1') {
 
       chrome.storage.sync.get("CUSTOM_PROMPT_1", async ({ CUSTOM_PROMPT_1 }) => {
@@ -316,23 +343,7 @@ chrome.runtime.onMessage.addListener(
           return;
         }
 
-        let readable = downloadSyncAndClean(request.linkUrl);
-        if (!readable) {
-          alert('Error downloading and cleaning the destination.');
-          return;
-        }
-
-        const prompt = template_for_custom_prompts.replace('{instruction}', CUSTOM_PROMPT_1).replace('{context}', readable);
-
-        try{
-          if (!session) session = await ai.languageModel.create();
-
-          let modelResult = await session.prompt(prompt);
-
-          alert(modelResult);
-        } catch(e) {
-          alert('Error answering your custom prompt :( . ' + JSON.stringify(e));
-        }
+        await downloadSyncCleandAndPrompt(request.linkUrl, CUSTOM_PROMPT_1);
       });
     }
   }
