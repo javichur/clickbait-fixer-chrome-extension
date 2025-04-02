@@ -4,11 +4,19 @@ btnSave.addEventListener('click', saveConfig);
 let btnSaveCustomContextMenu1 = document.getElementById("btnSaveCustomContextMenu1");
 btnSaveCustomContextMenu1.addEventListener('click', saveCustomeContextMenu);
 
+let checkboxInfiniteScroll = document.getElementById("checkboxInfiniteScroll");
+checkboxInfiniteScroll.addEventListener('click', saveCheckInfiniteScroll);
+
 
 function showDialog(txt) {
   let lbl = document.getElementById('lblGenericDialog');
   lbl.innerHTML = txt;
   document.getElementById('genericDialog').showModal();
+}
+
+
+function saveCheckInfiniteScroll() {
+  chrome.storage.sync.set({ CHECK_INFINITE_SCROLL: checkboxInfiniteScroll.checked }, () => {});
 }
 
 

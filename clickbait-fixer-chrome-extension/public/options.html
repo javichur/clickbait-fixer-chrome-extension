@@ -10,11 +10,15 @@
 
 <body>
   <div style="margin: 10px 20px 0px 20px;">
-    <h1><img id="logo" src="./icons/icon-128.png"
-        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;" />Clickbait Fixer - Chrome extension</h1>
+    <h1 style="display: flex; align-items: center; gap: 10px;">
+      <img id="logo" src="./icons/icon-128.png" style="display: inline-block; width: 40px; height: auto;" alt="logo" />
+      Clickbait Fixer - Chrome extension
+    </h1>
 
     <p>It detects and fixes clickbait links with AI locally!</p>
-    <p>You can use the Extension icon (popup) to scan all the links in the current web and get the Clickbait score for that web; or just click right over a link and select the Clickbait fixer option in the 'context menu' to analyze only that link.</p>
+    <p>You can use the Extension icon (popup) to scan all the links in the current web and get the Clickbait score for
+      that web; or just click right over a link and select the Clickbait fixer option in the 'context menu' to analyze
+      only that link.</p>
     <div class="nes-container with-title" style="margin-top: 20px;">
       <p class="title">Configuration</p>
       <label for="txtMaxNumLinks">Max number of links to analyze on each page:</label>
@@ -26,12 +30,23 @@
       </div>
       <p id="lblNote" style="margin-top: 20px;"></p>
 
-      <label for="txtCustomContextMenu1">(optional) Custom prompt for Context Menu. Destination will be downloaded and then this prompt will be executed (sample: "Give me the 5 W's of journalism in a single news headline, avoiding clickbait.").</label>
+      <label for="txtCustomContextMenu1">(optional) Custom prompt for Context Menu. Destination will be downloaded and
+        then this prompt will be executed (sample: "Give me the 5 W's of journalism in a single news headline, avoiding
+        clickbait.").</label>
       <div style="display: flex;">
         <div class="nes-field" style="width: 80%;">
           <input type="text" id="txtCustomContextMenu1" class="nes-input" style="width: 100%;">
         </div>
         <button id="btnSaveCustomContextMenu1" type="button" class="nes-btn is-primary">Save it</button>
+
+      </div>
+
+      <br/><br/>
+      <label>
+        <input id="checkboxInfiniteScroll" type="checkbox" class="nes-checkbox" checked>
+        <span>Detect addictive "infinite scroll".</span>
+      </label>
+      
     </div>
 
     <p id="footer" style="margin-top: 30px;">
@@ -40,15 +55,14 @@
       using <a href="https://googlechromeai.devpost.com/" target="_blank">Chrome Built-in AI APIs</a>.<br />
     </p>
 
-  </div>
-  <dialog class="nes-dialog" id="genericDialog">
-    <form method="dialog" target="_blank">
-      <p id="lblGenericDialog" class="title"></p>
-      <menu class="dialog-menu">
-        <button class="nes-btn is-primary">OK</button>
-      </menu>
-    </form>
-  </dialog>
+    <dialog class="nes-dialog" id="genericDialog">
+      <form method="dialog" target="_blank">
+        <p id="lblGenericDialog" class="title"></p>
+        <menu class="dialog-menu">
+          <button class="nes-btn is-primary">OK</button>
+        </menu>
+      </form>
+    </dialog>
 
 </body>
 <script src="options.js"></script>

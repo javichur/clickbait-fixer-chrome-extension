@@ -348,3 +348,29 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+
+let lastContentHeight = document.body.scrollHeight;
+
+function checkInfiniteScroll() {
+  chrome.storage.sync.get("CHECK_INFINITE_SCROLL", async ({ CHECK_INFINITE_SCROLL }) => {
+    if (!CHECK_INFINITE_SCROLL) return; // Si está desactivado, no hacer nada
+
+    const currentContentHeight = document.body.scrollHeight;
+    const scrollPosition = window.scrollY + window.innerHeight;
+
+    // Si la altura del contenido crece cuando el usuario se acerca al final de la página
+    if (scrollPosition >= lastContentHeight - 100 && currentContentHeight > lastContentHeight) {
+      const userResponse = prompt("'Clickbait fixer' extension says: This page seems to use 'infinite scroll' as an addictive mechanism. Type 'continue' if you want to keep scrolling. Otherwise, the page will automatically scroll back to the top.");
+
+      if (userResponse !== "continue") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      lastContentHeight = currentContentHeight; // Actualiza la altura para evitar alertas repetitivas
+    }
+  });
+}
+
+window.addEventListener("scroll", checkInfiniteScroll);
+window.addEventListener("load", () => { lastContentHeight = document.body.scrollHeight; });

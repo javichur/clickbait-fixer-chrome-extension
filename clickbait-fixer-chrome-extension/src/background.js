@@ -26,6 +26,7 @@ function createContextMenus(customPromptTitle) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.sync.set({ CHECK_INFINITE_SCROLL: true });
   chrome.storage.sync.set({ MAX_NUM_LINKS });
 
   let prompt = '(your custom prompt here)';
