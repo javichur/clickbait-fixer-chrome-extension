@@ -110,3 +110,7 @@ I learned a lot about:
 ![Context menu](doc/clickbait-fixer--screenshot-context-menu.png)
 
 ![Config page](doc/clickbait-fixer--screenshot-config.png)
+
+Now this Chrome Extension includes "infinite scroll" detection to help you to break out of the loop:
+
+![Config page](doc/infinite-scroll-detection.png)
